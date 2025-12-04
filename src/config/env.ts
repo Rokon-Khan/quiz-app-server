@@ -9,7 +9,7 @@ export const env = {
   DATABASE_URL: process.env["DATABASE_URL"] || "",
   REDIS_URL: process.env["REDIS_URL"] || "",
   JWT_SECRET: process.env["JWT_SECRET"] || "fallback-jwt-secret",
-  JWT_EXPIRES_IN: process.env["JWT_EXPIRES_IN"] || "15m",
+  JWT_EXPIRES_IN: process.env["JWT_EXPIRES_IN"] || "24h",
   REFRESH_TOKEN_SECRET:
     process.env["REFRESH_TOKEN_SECRET"] || "fallback-refresh-secret",
   REFRESH_TOKEN_EXPIRES_IN: process.env["REFRESH_TOKEN_EXPIRES_IN"] || "7d",

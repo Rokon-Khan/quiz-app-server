@@ -229,12 +229,24 @@ export const createQuiz = async (req: Request, res: Response) => {
       title, 
       description, 
       thumbnail_url, 
-      difficulty_level, 
-      questions_per_attempt, 
-      time_limit_minutes, 
-      passing_score, 
-      is_published 
+      difficulty_level = 'medium', 
+      questions_per_attempt = 10, 
+      time_limit_minutes = 0, 
+      passing_score = 70, 
+      is_published = false 
     } = req.body;
+
+    // Verify category exists
+    const category = await prisma.category.findUnique({
+      where: { id: category_id }
+    });
+
+    if (!category) {
+      return res.status(400).json({
+        success: false,
+        message: 'Category not found',
+      });
+    }
 
     const quiz = await prisma.quiz.create({
       data: {

@@ -12,10 +12,15 @@ export const validate = (schema: ZodSchema) => {
       });
       next();
     } catch (error: any) {
+      const errorDetails = error.errors?.map((err: any) => ({
+        field: err.path.join('.'),
+        message: err.message
+      })) || [{ field: 'unknown', message: 'Invalid input data' }];
+      
       return res.status(400).json({
         success: false,
         message: 'Validation error',
-        error: error.errors || 'Invalid input data',
+        errors: errorDetails,
       });
     }
   };

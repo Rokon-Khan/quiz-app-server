@@ -28,15 +28,17 @@ export const updateCategorySchema = z.object({
 });
 
 export const createQuizSchema = z.object({
-  category_id: z.string().uuid("Invalid category ID"),
-  title: z.string().min(2, "Quiz title must be at least 2 characters long"),
-  description: z.string().optional(),
-  thumbnail_url: z.string().url("Invalid thumbnail URL").optional().nullable(),
-  difficulty_level: z.enum(["easy", "medium", "hard"]).default("medium"),
-  questions_per_attempt: z.number().int().positive().default(10),
-  time_limit_minutes: z.number().int().min(0).default(0),
-  passing_score: z.number().int().min(0).max(100).default(70),
-  is_published: z.boolean().default(false),
+  body: z.object({
+    category_id: z.string().min(1, "Category ID is required"),
+    title: z.string().min(2, "Quiz title must be at least 2 characters long"),
+    description: z.string().optional(),
+    thumbnail_url: z.string().optional().nullable(),
+    difficulty_level: z.enum(["easy", "medium", "hard"]).optional(),
+    questions_per_attempt: z.number().int().positive().optional(),
+    time_limit_minutes: z.number().int().min(0).optional(),
+    passing_score: z.number().int().min(0).max(100).optional(),
+    is_published: z.boolean().optional(),
+  }),
 });
 
 export const updateQuizSchema = z.object({
@@ -50,11 +52,7 @@ export const updateQuizSchema = z.object({
       .min(2, "Quiz title must be at least 2 characters long")
       .optional(),
     description: z.string().optional(),
-    thumbnail_url: z
-      .string()
-      .url("Invalid thumbnail URL")
-      .optional()
-      .nullable(),
+    thumbnail_url: z.string().optional().nullable(),
     difficulty_level: z.enum(["easy", "medium", "hard"]).optional(),
     questions_per_attempt: z.number().int().positive().optional(),
     time_limit_minutes: z.number().int().min(0).optional(),
