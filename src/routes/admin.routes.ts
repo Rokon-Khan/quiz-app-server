@@ -14,6 +14,16 @@ import {
   getUserById,
   updateCategory,
   updateQuiz,
+  getAllFunFacts,
+  getFunFactById,
+  createFunFact,
+  updateFunFact,
+  deleteFunFact,
+  getAllCertificates,
+  getCertificateById,
+  createCertificate,
+  updateCertificate,
+  deleteCertificate,
 } from "../controllers/admin.controller";
 import { authenticate, authorizeAdmin } from "../middleware/auth.middleware";
 import { validate } from "../middleware/validation.middleware";
@@ -55,19 +65,56 @@ router.post(
   "/quizzes",
   authenticate,
   authorizeAdmin,
-  validate(createQuizSchema),
+  fileUploader.upload.single("thumbnail"),
   createQuiz
 );
 router.put(
   "/quizzes/:id",
   authenticate,
   authorizeAdmin,
-  validate(updateQuizSchema),
+  fileUploader.upload.single("thumbnail"),
   updateQuiz
 );
 router.delete("/quizzes/:id", authenticate, authorizeAdmin, deleteQuiz);
 
-// Question routes (delegated to question controller)
+// Fun Facts routes
+router.get("/funfacts", authenticate, authorizeAdmin, getAllFunFacts);
+router.get("/funfacts/:id", authenticate, authorizeAdmin, getFunFactById);
+router.post(
+  "/funfacts",
+  authenticate,
+  authorizeAdmin,
+  fileUploader.upload.single("image"),
+  createFunFact
+);
+router.put(
+  "/funfacts/:id",
+  authenticate,
+  authorizeAdmin,
+  fileUploader.upload.single("image"),
+  updateFunFact
+);
+router.delete("/funfacts/:id", authenticate, authorizeAdmin, deleteFunFact);
+
+// Certificate routes
+router.get("/certificates", authenticate, authorizeAdmin, getAllCertificates);
+router.get("/certificates/:id", authenticate, authorizeAdmin, getCertificateById);
+router.post(
+  "/certificates",
+  authenticate,
+  authorizeAdmin,
+  fileUploader.upload.single("certificate"),
+  createCertificate
+);
+router.put(
+  "/certificates/:id",
+  authenticate,
+  authorizeAdmin,
+  fileUploader.upload.single("certificate"),
+  updateCertificate
+);
+router.delete("/certificates/:id", authenticate, authorizeAdmin, deleteCertificate);
+
 // Analytics routes
 router.get("/analytics", authenticate, authorizeAdmin, getAnalytics);
 
@@ -75,135 +122,6 @@ router.get("/analytics", authenticate, authorizeAdmin, getAnalytics);
 router.get("/users", authenticate, authorizeAdmin, getAllUsers);
 router.get("/users/:id", authenticate, authorizeAdmin, getUserById);
 
-// File upload routes
-router.post(
-  "/upload/quiz-thumbnail",
-  authenticate,
-  authorizeAdmin,
-  fileUploader.upload.single("thumbnail"),
-  async (req, res) => {
-    try {
-      if (!req.file) {
-        return res
-          .status(400)
-          .json({ success: false, message: "No file uploaded" });
-      }
-      const uploadResult = (await fileUploader.uploadToCloudinary(
-        req.file
-      )) as any;
-      res.status(200).json({
-        success: true,
-        message: "Quiz thumbnail uploaded successfully",
-        data: { url: uploadResult.secure_url },
-      });
-    } catch (error) {
-      res.status(500).json({ success: false, message: "File upload failed" });
-    }
-  }
-);
 
-router.post(
-  "/upload/question-image",
-  authenticate,
-  authorizeAdmin,
-  fileUploader.upload.single("question_image"),
-  async (req, res) => {
-    try {
-      if (!req.file) {
-        return res
-          .status(400)
-          .json({ success: false, message: "No file uploaded" });
-      }
-      const uploadResult = (await fileUploader.uploadToCloudinary(
-        req.file
-      )) as any;
-      res.status(200).json({
-        success: true,
-        message: "Question image uploaded successfully",
-        data: { url: uploadResult.secure_url },
-      });
-    } catch (error) {
-      res.status(500).json({ success: false, message: "File upload failed" });
-    }
-  }
-);
-
-router.post(
-  "/upload/option-image",
-  authenticate,
-  authorizeAdmin,
-  fileUploader.upload.single("option_image"),
-  async (req, res) => {
-    try {
-      if (!req.file) {
-        return res
-          .status(400)
-          .json({ success: false, message: "No file uploaded" });
-      }
-      const uploadResult = (await fileUploader.uploadToCloudinary(
-        req.file
-      )) as any;
-      res.status(200).json({
-        success: true,
-        message: "Option image uploaded successfully",
-        data: { url: uploadResult.secure_url },
-      });
-    } catch (error) {
-      res.status(500).json({ success: false, message: "File upload failed" });
-    }
-  }
-);
-
-router.post(
-  "/upload/funfact-image",
-  authenticate,
-  authorizeAdmin,
-  fileUploader.upload.single("funfact_image"),
-  async (req, res) => {
-    try {
-      if (!req.file) {
-        return res
-          .status(400)
-          .json({ success: false, message: "No file uploaded" });
-      }
-      const uploadResult = (await fileUploader.uploadToCloudinary(
-        req.file
-      )) as any;
-      res.status(200).json({
-        success: true,
-        message: "Fun fact image uploaded successfully",
-        data: { url: uploadResult.secure_url },
-      });
-    } catch (error) {
-      res.status(500).json({ success: false, message: "File upload failed" });
-    }
-  }
-);
-
-router.post(
-  "/upload/certificate",
-  authenticate,
-  authorizeAdmin,
-  fileUploader.upload.single("certificate"),
-  async (req, res) => {
-    try {
-      if (!req.file) {
-        return res
-          .status(400)
-          .json({ success: false, message: "No file uploaded" });
-      }
-      const uploadResult = (await fileUploader.uploadToCloudinary(
-        req.file
-      )) as any;
-      res.status(200).json({
-        success: true,
-        message: "Certificate uploaded successfully",
-        data: { url: uploadResult.secure_url },
-      });
-    } catch (error) {
-      res.status(500).json({ success: false, message: "File upload failed" });
-    }
-  }
-);
 
 export { router as adminRoutes };

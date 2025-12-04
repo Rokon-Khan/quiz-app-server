@@ -1,0 +1,626 @@
+{
+  "info": {
+    "name": "WizdomMaster Quiz API -Version 2.0",
+    "description": "Interactive Quiz Application Backend with Image Upload Support",
+    "version": "2.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "quiz_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "category_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "question_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data) {",
+                  "        pm.collectionVariables.set('access_token', response.data.accessToken);",
+                  "        if (response.data.user) {",
+                  "            pm.collectionVariables.set('user_id', response.data.user.id);",
+                  "        }",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Quizzes (Updated)",
+      "item": [
+        {
+          "name": "Create Quiz (JSON)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('quiz_id', response.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": \"{{category_id}}\",\n  \"title\": \"JavaScript Fundamentals\",\n  \"description\": \"Test your knowledge of JavaScript basics\",\n  \"thumbnail_url\": \"https://example.com/js-quiz-thumb.png\",\n  \"difficulty_level\": \"medium\",\n  \"questions_per_attempt\": 10,\n  \"time_limit_minutes\": 30,\n  \"passing_score\": 70,\n  \"is_published\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/quizzes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "quizzes"]
+            }
+          }
+        },
+        {
+          "name": "Create Quiz (Form Data with Image)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "category_id",
+                  "value": "{{category_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "JavaScript Advanced",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Advanced JavaScript concepts",
+                  "type": "text"
+                },
+                {
+                  "key": "difficulty_level",
+                  "value": "hard",
+                  "type": "text"
+                },
+                {
+                  "key": "questions_per_attempt",
+                  "value": "15",
+                  "type": "text"
+                },
+                {
+                  "key": "time_limit_minutes",
+                  "value": "45",
+                  "type": "text"
+                },
+                {
+                  "key": "passing_score",
+                  "value": "80",
+                  "type": "text"
+                },
+                {
+                  "key": "is_published",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "thumbnail",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/quizzes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "quizzes"]
+            }
+          }
+        },
+        {
+          "name": "Update Quiz (Form Data with Image)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Updated Quiz Title",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated description",
+                  "type": "text"
+                },
+                {
+                  "key": "thumbnail",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/quizzes/{{quiz_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "quizzes", "{{quiz_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Questions (Updated)",
+      "item": [
+        {
+          "name": "Create Question (Form Data with Image)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "quiz_id",
+                  "value": "{{quiz_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "question_type",
+                  "value": "multiple_choice",
+                  "type": "text"
+                },
+                {
+                  "key": "question_text",
+                  "value": "What is JavaScript?",
+                  "type": "text"
+                },
+                {
+                  "key": "points",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "display_order",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "question_image",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "options",
+                  "value": "[{\"option_text\":\"A programming language\",\"is_correct\":true,\"display_order\":1},{\"option_text\":\"A markup language\",\"is_correct\":false,\"display_order\":2}]",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Update Question (Form Data with Image)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "question_text",
+                  "value": "Updated question text",
+                  "type": "text"
+                },
+                {
+                  "key": "question_image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/questions/{{question_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "questions", "{{question_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Fun Facts",
+      "item": [
+        {
+          "name": "Get All Fun Facts",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/funfacts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "funfacts"]
+            }
+          }
+        },
+        {
+          "name": "Create Fun Fact",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "question_id",
+                  "value": "{{question_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Fun Fact Title",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "This is an interesting fun fact about the topic.",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/funfacts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "funfacts"]
+            }
+          }
+        },
+        {
+          "name": "Update Fun Fact",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Updated Fun Fact Title",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "Updated fun fact content.",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/funfacts/funfact_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "funfacts", "funfact_id"]
+            }
+          }
+        },
+        {
+          "name": "Delete Fun Fact",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/funfacts/funfact_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "funfacts", "funfact_id"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Certificates",
+      "item": [
+        {
+          "name": "Get All Certificates",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/certificates",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "certificates"]
+            }
+          }
+        },
+        {
+          "name": "Create Certificate",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "quiz_id",
+                  "value": "{{quiz_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "score_achieved",
+                  "value": "85",
+                  "type": "text"
+                },
+                {
+                  "key": "certificate",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/certificates",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "certificates"]
+            }
+          }
+        },
+        {
+          "name": "Update Certificate",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "score_achieved",
+                  "value": "90",
+                  "type": "text"
+                },
+                {
+                  "key": "certificate",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/certificates/certificate_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "certificates", "certificate_id"]
+            }
+          }
+        },
+        {
+          "name": "Delete Certificate",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/certificates/certificate_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "certificates", "certificate_id"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
