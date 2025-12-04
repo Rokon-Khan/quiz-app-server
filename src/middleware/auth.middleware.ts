@@ -1,59 +1,140 @@
 // src/middleware/auth.middleware.ts
-import { Request, Response, NextFunction } from 'express';
-import passport from 'passport';
-import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
-import { prisma } from '../config/database';
-import { env } from '../config/env';
-import { JWTPayload } from '../types';
-
-// Configure JWT strategy
-const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: env.JWT_SECRET,
-};
-
-passport.use(
-  new JwtStrategy(jwtOptions, async (payload: JWTPayload, done) => {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: payload.user_id },
-      });
-
-      if (user) {
-        return done(null, user);
-      }
-
-      return done(null, false);
-    } catch (error) {
-      return done(error, false);
-    }
-  })
-);
+import { NextFunction, Request, Response } from "express";
+import { prisma } from "../config/database";
+import { verifyAccessToken } from "../utils/jwt";
 
 // Authentication middleware
-export const authenticate = passport.authenticate('jwt', { session: false });
+export const authenticate = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    let token = req.headers.authorization;
+
+    // Remove 'Bearer ' prefix if present
+    if (token && token.startsWith("Bearer ")) {
+      token = token.slice(7);
+    }
+
+    // If no token in header, check cookies
+    if (!token) {
+      token = req.cookies?.["accessToken"];
+    }
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "You are not authorized!",
+      });
+    }
+
+    const verifiedUser = await verifyAccessToken(token);
+
+    // Get full user data from database
+    const user = await prisma.user.findUnique({
+      where: { id: verifiedUser.user_id },
+    });
+
+    if (!user || !user.is_active) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found or inactive!",
+      });
+    }
+
+    req.user = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      full_name: user.full_name,
+    };
+
+    next();
+  } catch (err) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token!",
+    });
+  }
+};
 
 // Authorization middleware for admin access
-export const authorizeAdmin = (req: Request, res: Response, next: NextFunction) => {
-  if (req.user && (req.user as any).role === 'admin') {
+export const authorizeAdmin = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.user && (req.user as any).role === "admin") {
     next();
   } else {
     res.status(403).json({
       success: false,
-      message: 'Access denied. Admin privileges required.',
+      message: "Forbidden!",
     });
   }
 };
 
 // Authorization middleware for specific roles
-export const authorizeRole = (...roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (req.user && roles.includes((req.user as any).role)) {
+export const auth = (...roles: string[]) => {
+  return async (
+    req: Request & { user?: any },
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      let token = req.headers.authorization;
+
+      // Remove 'Bearer ' prefix if present
+      if (token && token.startsWith("Bearer ")) {
+        token = token.slice(7);
+      }
+
+      // If no token in header, check cookies
+      if (!token) {
+        token = req.cookies?.["accessToken"];
+      }
+
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          message: "You are not authorized!",
+        });
+      }
+
+      const verifiedUser = await verifyAccessToken(token);
+
+      // Get full user data from database
+      const user = await prisma.user.findUnique({
+        where: { id: verifiedUser.user_id },
+      });
+
+      if (!user || !user.is_active) {
+        return res.status(401).json({
+          success: false,
+          message: "User not found or inactive!",
+        });
+      }
+
+      req.user = {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        full_name: user.full_name,
+      };
+
+      if (roles.length && !roles.includes(user.role)) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden!",
+        });
+      }
+
       next();
-    } else {
-      res.status(403).json({
+    } catch (err) {
+      return res.status(401).json({
         success: false,
-        message: 'Access denied. Insufficient privileges.',
+        message: "Invalid or expired token!",
       });
     }
   };

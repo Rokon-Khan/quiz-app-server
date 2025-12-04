@@ -34,7 +34,7 @@ WizdomMaster is a scalable, production-ready REST API for an Interactive Quiz Ap
 
 ### Prerequisites
 
-- Node.js 20+ 
+- Node.js 20+
 - PostgreSQL
 - Redis
 - AWS S3 Bucket
@@ -42,42 +42,50 @@ WizdomMaster is a scalable, production-ready REST API for an Interactive Quiz Ap
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <your-repo-url>
 cd wizdommaster-quiz-api
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 ```
+
 Update the .env file with your actual configuration values.
 
 4. Set up the database:
+
 ```bash
 npx prisma migrate dev
 ```
 
 5. Build the application:
+
 ```bash
 npm run build
 ```
 
 6. Run the application:
+
 ```bash
 npm run dev
 ```
 
-The API will be available at `http://localhost:3000`
+The API will be available at `http://localhost:5000`
 
 ## 📡 API Endpoints
 
 ### Authentication
+
 - `POST /api/v1/auth/register` - User Registration
 - `POST /api/v1/auth/login` - User Login
 - `POST /api/v1/auth/refresh` - Refresh Access Token
@@ -86,6 +94,7 @@ The API will be available at `http://localhost:3000`
 - `POST /api/v1/auth/reset-password` - Reset Password
 
 ### Categories
+
 - `GET /api/v1/categories` - Get all categories
 - `GET /api/v1/categories/:id` - Get specific category
 - `POST /api/v1/admin/categories` - Create category (Admin)
@@ -93,6 +102,7 @@ The API will be available at `http://localhost:3000`
 - `DELETE /api/v1/admin/categories/:id` - Delete category (Admin)
 
 ### Quizzes
+
 - `GET /api/v1/quizzes` - Get all quizzes
 - `GET /api/v1/quizzes/:id` - Get specific quiz
 - `POST /api/v1/quizzes/:id/start` - Start quiz
@@ -102,6 +112,7 @@ The API will be available at `http://localhost:3000`
 - `DELETE /api/v1/admin/quizzes/:id` - Delete quiz (Admin)
 
 ### Questions
+
 - `GET /api/v1/admin/questions` - Get all questions (Admin)
 - `GET /api/v1/admin/questions/:id` - Get specific question (Admin)
 - `POST /api/v1/admin/questions` - Create question (Admin)
@@ -109,16 +120,19 @@ The API will be available at `http://localhost:3000`
 - `DELETE /api/v1/admin/questions/:id` - Delete question (Admin)
 
 ### User Progress
+
 - `GET /api/v1/users/me/progress` - Get user progress
 - `GET /api/v1/users/me/attempts` - Get user quiz attempts
 - `GET /api/v1/users/me/certificates` - Get user certificates
 
 ### Admin Analytics
+
 - `GET /api/v1/admin/analytics` - Get analytics (Admin)
 - `GET /api/v1/admin/users` - Get all users (Admin)
 - `GET /api/v1/admin/users/:id` - Get specific user (Admin)
 
 ### File Upload
+
 - `POST /api/v1/admin/upload/image` - Upload image (Admin)
 
 ## 🔐 Authentication
@@ -132,11 +146,13 @@ Authorization: Bearer <access_token>
 ## 🧪 Testing
 
 Run unit tests:
+
 ```bash
 npm run test
 ```
 
 Run tests in watch mode:
+
 ```bash
 npm run test:watch
 ```
@@ -146,17 +162,20 @@ npm run test:watch
 For production deployment on AWS Lightsail:
 
 1. Install Node.js:
+
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
 ```
 
 2. Install PM2:
+
 ```bash
 sudo npm install -g pm2
 ```
 
 3. Clone and setup the application:
+
 ```bash
 git clone <repo-url>
 cd quiz-api
@@ -166,6 +185,7 @@ npx prisma migrate deploy
 ```
 
 4. Start with PM2:
+
 ```bash
 pm2 start dist/server.js --name quiz-api
 pm2 save

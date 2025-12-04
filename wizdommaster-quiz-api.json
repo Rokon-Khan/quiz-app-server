@@ -80,6 +80,10 @@
                   "    if (response.data && response.data.user) {",
                   "        pm.collectionVariables.set('user_id', response.data.user.id);",
                   "    }",
+                  "    if (response.data && response.data.accessToken) {",
+                  "        pm.collectionVariables.set('access_token', response.data.accessToken);",
+                  "        pm.collectionVariables.set('refresh_token', response.data.refreshToken);",
+                  "    }",
                   "}"
                 ]
               }
@@ -114,8 +118,8 @@
                   "if (pm.response.code === 200) {",
                   "    const response = pm.response.json();",
                   "    if (response.data) {",
-                  "        pm.collectionVariables.set('access_token', response.data.access_token);",
-                  "        pm.collectionVariables.set('refresh_token', response.data.refresh_token);",
+                  "        pm.collectionVariables.set('access_token', response.data.accessToken);",
+                  "        pm.collectionVariables.set('refresh_token', response.data.refreshToken);",
                   "        if (response.data.user) {",
                   "            pm.collectionVariables.set('user_id', response.data.user.id);",
                   "        }",
@@ -153,8 +157,8 @@
                 "exec": [
                   "if (pm.response.code === 200) {",
                   "    const response = pm.response.json();",
-                  "    if (response.data && response.data.access_token) {",
-                  "        pm.collectionVariables.set('access_token', response.data.access_token);",
+                  "    if (response.data && response.data.accessToken) {",
+                  "        pm.collectionVariables.set('access_token', response.data.accessToken);",
                   "    }",
                   "}"
                 ]
@@ -171,7 +175,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+              "raw": "{}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/auth/refresh",
@@ -192,7 +196,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+              "raw": "{}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/auth/logout",
