@@ -2,6 +2,103 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/database';
 import { logger } from '../utils/logger';
+import { fileUploader } from '../../utils/fileUploader';
+
+export const getUserProfile = async (req: Request & { user?: any }, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        full_name: true,
+        avatar_url: true,
+        role: true,
+        is_active: true,
+        created_at: true,
+        updated_at: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'User profile retrieved successfully',
+      data: user
+    });
+  } catch (error) {
+    logger.error('Get user profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
+export const updateUserProfile = async (req: Request & { user?: any }, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { full_name } = req.body;
+    const file = req.file;
+
+    const currentUser = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!currentUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    let avatar_url = currentUser.avatar_url;
+
+    if (file) {
+      const uploadResult = await fileUploader.uploadToCloudinary(file, currentUser.avatar_url || undefined) as any;
+      avatar_url = uploadResult.secure_url;
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(full_name && { full_name }),
+        ...(avatar_url && { avatar_url }),
+        updated_at: new Date()
+      },
+      select: {
+        id: true,
+        email: true,
+        full_name: true,
+        avatar_url: true,
+        role: true,
+        is_active: true,
+        created_at: true,
+        updated_at: true
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'User profile updated successfully',
+      data: updatedUser
+    });
+  } catch (error) {
+    logger.error('Update user profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
 
 export const getUserProgress = async (req: Request, res: Response) => {
   try {

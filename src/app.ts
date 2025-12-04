@@ -58,6 +58,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/quizzes", quizRoutes);
 app.use("/api/v1/questions", questionRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
 
 // Health check endpoint

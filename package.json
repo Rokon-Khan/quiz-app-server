@@ -11,7 +11,8 @@
     "test:watch": "jest --watch",
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate dev",
-    "seed": "ts-node prisma/seed.ts"
+    "prisma:migrate:reset": "npx prisma migrate reset",
+    "seed": "ts-node utils/seed.ts"
   },
   "keywords": [
     "quiz",

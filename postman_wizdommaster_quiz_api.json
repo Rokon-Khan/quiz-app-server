@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "WizdomMaster Quiz API",
+    "name": "WizdomMaster Quiz API Test",
     "description": "Interactive Quiz Application Backend - Production-ready REST API",
     "version": "1.0.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -18,7 +18,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:3000",
+      "value": "http://localhost:5000",
       "type": "string"
     },
     {
@@ -346,6 +346,70 @@
               "raw": "{{base_url}}/api/v1/quizzes/{{quiz_id}}/submit",
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "quizzes", "{{quiz_id}}", "submit"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "me"]
+            }
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "full_name",
+                  "value": "Updated Name",
+                  "type": "text"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "me"]
             }
           }
         }
@@ -1033,7 +1097,7 @@
       "name": "Admin - File Upload",
       "item": [
         {
-          "name": "Upload Image",
+          "name": "Upload Quiz Thumbnail",
           "request": {
             "auth": {
               "type": "bearer",
@@ -1051,16 +1115,144 @@
               "mode": "formdata",
               "formdata": [
                 {
-                  "key": "image",
+                  "key": "thumbnail",
                   "type": "file",
                   "src": []
                 }
               ]
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/admin/upload/image",
+              "raw": "{{base_url}}/api/v1/admin/upload/quiz-thumbnail",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "admin", "upload", "image"]
+              "path": ["api", "v1", "admin", "upload", "quiz-thumbnail"]
+            }
+          }
+        },
+        {
+          "name": "Upload Question Image",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "question_image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/upload/question-image",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "upload", "question-image"]
+            }
+          }
+        },
+        {
+          "name": "Upload Option Image",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "option_image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/upload/option-image",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "upload", "option-image"]
+            }
+          }
+        },
+        {
+          "name": "Upload Fun Fact Image",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "funfact_image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/upload/funfact-image",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "upload", "funfact-image"]
+            }
+          }
+        },
+        {
+          "name": "Upload Certificate",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "certificate",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/upload/certificate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "upload", "certificate"]
             }
           }
         }
