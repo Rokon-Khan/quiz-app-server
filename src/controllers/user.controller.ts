@@ -1,13 +1,16 @@
 // src/controllers/user.controller.ts
-import { Request, Response } from 'express';
-import { prisma } from '../config/database';
-import { logger } from '../utils/logger';
-import { fileUploader } from '../../utils/fileUploader';
+import { Request, Response } from "express";
+import { prisma } from "../config/database";
+import { fileUploader } from "../utils/fileUploader";
+import { logger } from "../utils/logger";
 
-export const getUserProfile = async (req: Request & { user?: any }, res: Response) => {
+export const getUserProfile = async (
+  req: Request & { user?: any },
+  res: Response
+) => {
   try {
     const userId = req.user?.id;
-    
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -18,52 +21,58 @@ export const getUserProfile = async (req: Request & { user?: any }, res: Respons
         role: true,
         is_active: true,
         created_at: true,
-        updated_at: true
-      }
+        updated_at: true,
+      },
     });
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'User profile retrieved successfully',
-      data: user
+      message: "User profile retrieved successfully",
+      data: user,
     });
   } catch (error) {
-    logger.error('Get user profile error:', error);
+    logger.error("Get user profile error:", error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: "Internal server error",
     });
   }
 };
 
-export const updateUserProfile = async (req: Request & { user?: any }, res: Response) => {
+export const updateUserProfile = async (
+  req: Request & { user?: any },
+  res: Response
+) => {
   try {
     const userId = req.user?.id;
     const { full_name } = req.body;
     const file = req.file;
 
     const currentUser = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (!currentUser) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
     let avatar_url = currentUser.avatar_url;
 
     if (file) {
-      const uploadResult = await fileUploader.uploadToCloudinary(file, currentUser.avatar_url || undefined) as any;
+      const uploadResult = (await fileUploader.uploadToCloudinary(
+        file,
+        currentUser.avatar_url || undefined
+      )) as any;
       avatar_url = uploadResult.secure_url;
     }
 
@@ -72,7 +81,7 @@ export const updateUserProfile = async (req: Request & { user?: any }, res: Resp
       data: {
         ...(full_name && { full_name }),
         ...(avatar_url && { avatar_url }),
-        updated_at: new Date()
+        updated_at: new Date(),
       },
       select: {
         id: true,
@@ -82,20 +91,20 @@ export const updateUserProfile = async (req: Request & { user?: any }, res: Resp
         role: true,
         is_active: true,
         created_at: true,
-        updated_at: true
-      }
+        updated_at: true,
+      },
     });
 
     res.status(200).json({
       success: true,
-      message: 'User profile updated successfully',
-      data: updatedUser
+      message: "User profile updated successfully",
+      data: updatedUser,
     });
   } catch (error) {
-    logger.error('Update user profile error:', error);
+    logger.error("Update user profile error:", error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: "Internal server error",
     });
   }
 };
@@ -107,7 +116,7 @@ export const getUserProgress = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized',
+        message: "Unauthorized",
       });
     }
 
@@ -126,20 +135,20 @@ export const getUserProgress = async (req: Request, res: Response) => {
         },
       },
       orderBy: {
-        last_attempt_at: 'desc',
+        last_attempt_at: "desc",
       },
     });
 
     res.status(200).json({
       success: true,
-      message: 'User progress retrieved successfully',
+      message: "User progress retrieved successfully",
       data: progress,
     });
   } catch (error) {
-    logger.error('Error fetching user progress:', error);
+    logger.error("Error fetching user progress:", error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: "Internal server error",
     });
   }
 };
@@ -151,7 +160,7 @@ export const getUserAttempts = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized',
+        message: "Unauthorized",
       });
     }
 
@@ -170,20 +179,20 @@ export const getUserAttempts = async (req: Request, res: Response) => {
         },
       },
       orderBy: {
-        started_at: 'desc',
+        started_at: "desc",
       },
     });
 
     res.status(200).json({
       success: true,
-      message: 'User attempts retrieved successfully',
+      message: "User attempts retrieved successfully",
       data: attempts,
     });
   } catch (error) {
-    logger.error('Error fetching user attempts:', error);
+    logger.error("Error fetching user attempts:", error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: "Internal server error",
     });
   }
 };
@@ -195,7 +204,7 @@ export const getUserCertificates = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized',
+        message: "Unauthorized",
       });
     }
 
@@ -214,20 +223,20 @@ export const getUserCertificates = async (req: Request, res: Response) => {
         },
       },
       orderBy: {
-        issued_at: 'desc',
+        issued_at: "desc",
       },
     });
 
     res.status(200).json({
       success: true,
-      message: 'User certificates retrieved successfully',
+      message: "User certificates retrieved successfully",
       data: certificates,
     });
   } catch (error) {
-    logger.error('Error fetching user certificates:', error);
+    logger.error("Error fetching user certificates:", error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: "Internal server error",
     });
   }
 };
