@@ -1,0 +1,1066 @@
+{
+  "info": {
+    "name": "WizdomMaster Quiz API",
+    "description": "Interactive Quiz Application Backend - Production-ready REST API",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "quiz_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "category_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "question_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.user) {",
+                  "        pm.collectionVariables.set('user_id', response.data.user.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"full_name\": \"John Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data) {",
+                  "        pm.collectionVariables.set('access_token', response.data.access_token);",
+                  "        pm.collectionVariables.set('refresh_token', response.data.refresh_token);",
+                  "        if (response.data.user) {",
+                  "            pm.collectionVariables.set('user_id', response.data.user.id);",
+                  "        }",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.access_token) {",
+                  "        pm.collectionVariables.set('access_token', response.data.access_token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Logout User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/forgot-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"reset_token_here\",\n  \"password\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/reset-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "reset-password"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quizzes",
+      "item": [
+        {
+          "name": "Get All Quizzes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.length > 0) {",
+                  "        pm.collectionVariables.set('quiz_id', response.data[0].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/quizzes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "quizzes"]
+            }
+          }
+        },
+        {
+          "name": "Get Quiz by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/quizzes/{{quiz_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "quizzes", "{{quiz_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Start Quiz",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/quizzes/{{quiz_id}}/start",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "quizzes", "{{quiz_id}}", "start"]
+            }
+          }
+        },
+        {
+          "name": "Submit Quiz",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": [\n    {\n      \"question_id\": \"{{question_id}}\",\n      \"selected_options\": [\"option_id_1\", \"option_id_2\"]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/quizzes/{{quiz_id}}/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "quizzes", "{{quiz_id}}", "submit"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Progress",
+      "item": [
+        {
+          "name": "Get User Progress",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/me/progress",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "me", "progress"]
+            }
+          }
+        },
+        {
+          "name": "Get User Attempts",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/me/attempts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "me", "attempts"]
+            }
+          }
+        },
+        {
+          "name": "Get User Certificates",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/me/certificates",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "me", "certificates"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.length > 0) {",
+                  "        pm.collectionVariables.set('category_id', response.data[0].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "categories", "{{category_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('category_id', response.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Technology\",\n  \"description\": \"Technology and programming related quizzes\",\n  \"icon_url\": \"https://example.com/tech-icon.png\",\n  \"display_order\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Advanced Technology\",\n  \"description\": \"Advanced technology and programming concepts\",\n  \"icon_url\": \"https://example.com/advanced-tech-icon.png\",\n  \"display_order\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "categories", "{{category_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "categories", "{{category_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Quizzes",
+      "item": [
+        {
+          "name": "Get All Quizzes (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/quizzes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "quizzes"]
+            }
+          }
+        },
+        {
+          "name": "Get Quiz by ID (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/quizzes/{{quiz_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "quizzes", "{{quiz_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Quiz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('quiz_id', response.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": \"{{category_id}}\",\n  \"title\": \"JavaScript Fundamentals\",\n  \"description\": \"Test your knowledge of JavaScript basics\",\n  \"thumbnail_url\": \"https://example.com/js-quiz-thumb.png\",\n  \"difficulty_level\": \"medium\",\n  \"questions_per_attempt\": 10,\n  \"time_limit_minutes\": 30,\n  \"passing_score\": 70,\n  \"is_published\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/quizzes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "quizzes"]
+            }
+          }
+        },
+        {
+          "name": "Update Quiz",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Advanced JavaScript Concepts\",\n  \"description\": \"Test your knowledge of advanced JavaScript topics\",\n  \"difficulty_level\": \"hard\",\n  \"questions_per_attempt\": 15,\n  \"time_limit_minutes\": 45,\n  \"passing_score\": 80\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/quizzes/{{quiz_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "quizzes", "{{quiz_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Quiz",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/quizzes/{{quiz_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "quizzes", "{{quiz_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Questions",
+      "item": [
+        {
+          "name": "Get All Questions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.length > 0) {",
+                  "        pm.collectionVariables.set('question_id', response.data[0].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Get Question by ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/questions/{{question_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "questions", "{{question_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Question - Multiple Choice",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('question_id', response.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quiz_id\": \"{{quiz_id}}\",\n  \"question_type\": \"multiple_choice\",\n  \"question_text\": \"What is the correct way to declare a variable in JavaScript?\",\n  \"question_image_url\": null,\n  \"points\": 1,\n  \"display_order\": 1,\n  \"options\": [\n    {\n      \"option_text\": \"var myVar = 'value';\",\n      \"is_correct\": true,\n      \"display_order\": 1\n    },\n    {\n      \"option_text\": \"variable myVar = 'value';\",\n      \"is_correct\": false,\n      \"display_order\": 2\n    },\n    {\n      \"option_text\": \"v myVar = 'value';\",\n      \"is_correct\": false,\n      \"display_order\": 3\n    },\n    {\n      \"option_text\": \"declare myVar = 'value';\",\n      \"is_correct\": false,\n      \"display_order\": 4\n    }\n  ],\n  \"fun_facts\": [\n    {\n      \"title\": \"JavaScript Variables\",\n      \"content\": \"JavaScript has three ways to declare variables: var, let, and const. Each has different scoping rules.\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Create Question - Checkbox",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quiz_id\": \"{{quiz_id}}\",\n  \"question_type\": \"checkbox\",\n  \"question_text\": \"Which of the following are JavaScript data types? (Select all that apply)\",\n  \"question_image_url\": null,\n  \"points\": 2,\n  \"display_order\": 2,\n  \"options\": [\n    {\n      \"option_text\": \"String\",\n      \"is_correct\": true,\n      \"display_order\": 1\n    },\n    {\n      \"option_text\": \"Number\",\n      \"is_correct\": true,\n      \"display_order\": 2\n    },\n    {\n      \"option_text\": \"Boolean\",\n      \"is_correct\": true,\n      \"display_order\": 3\n    },\n    {\n      \"option_text\": \"Character\",\n      \"is_correct\": false,\n      \"display_order\": 4\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Create Question - Yes/No",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quiz_id\": \"{{quiz_id}}\",\n  \"question_type\": \"yes_no\",\n  \"question_text\": \"JavaScript is a compiled language.\",\n  \"question_image_url\": null,\n  \"points\": 1,\n  \"display_order\": 3,\n  \"options\": [\n    {\n      \"option_text\": \"Yes\",\n      \"is_correct\": false,\n      \"display_order\": 1\n    },\n    {\n      \"option_text\": \"No\",\n      \"is_correct\": true,\n      \"display_order\": 2\n    }\n  ],\n  \"fun_facts\": [\n    {\n      \"title\": \"JavaScript Execution\",\n      \"content\": \"JavaScript is an interpreted language, not compiled. It's executed by the JavaScript engine in browsers or Node.js.\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Update Question",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_text\": \"What is the modern way to declare a variable in JavaScript?\",\n  \"points\": 2,\n  \"options\": [\n    {\n      \"option_text\": \"let myVar = 'value';\",\n      \"is_correct\": true,\n      \"display_order\": 1\n    },\n    {\n      \"option_text\": \"var myVar = 'value';\",\n      \"is_correct\": false,\n      \"display_order\": 2\n    },\n    {\n      \"option_text\": \"const myVar = 'value';\",\n      \"is_correct\": true,\n      \"display_order\": 3\n    },\n    {\n      \"option_text\": \"variable myVar = 'value';\",\n      \"is_correct\": false,\n      \"display_order\": 4\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/questions/{{question_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "questions", "{{question_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Question",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/questions/{{question_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "questions", "{{question_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Analytics & Users",
+      "item": [
+        {
+          "name": "Get Analytics",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/analytics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "analytics"]
+            }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "users", "{{user_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - File Upload",
+      "item": [
+        {
+          "name": "Upload Image",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/upload/image",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "upload", "image"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
