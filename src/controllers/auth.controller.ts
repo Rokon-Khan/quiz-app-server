@@ -289,3 +289,48 @@ export const resetPassword = async (
     message: "Reset password functionality not yet implemented",
   });
 };
+
+export const getMe = async (req: Request, res: Response) => {
+  try {
+    const userId = (req.user as any)?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        full_name: true,
+        avatar_url: true,
+        role: true,
+        is_active: true,
+        created_at: true,
+        updated_at: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User profile retrieved successfully",
+      data: user,
+    });
+  } catch (error) {
+    logger.error("Error fetching user profile:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};

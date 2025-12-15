@@ -1,8 +1,8 @@
 // src/services/auth.service.ts
-import { prisma } from '../config/database';
-import { hashPassword, comparePassword } from '../utils/helpers';
-import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
-import { logger } from '../utils/logger';
+import { prisma } from "../config/database";
+import { comparePassword, hashPassword } from "../utils/helpers";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
+import { logger } from "../utils/logger";
 
 interface RegisterUserData {
   email: string;
@@ -40,7 +40,7 @@ export class AuthService {
       });
 
       if (existingUser) {
-        throw new Error('User with this email already exists');
+        throw new Error("User with this email already exists");
       }
 
       // Hash the password
@@ -59,13 +59,13 @@ export class AuthService {
       const accessToken = generateAccessToken({
         user_id: user.id,
         email: user.email,
-        role: user.role as 'user' | 'admin' | 'super_admin',
+        role: user.role as "user" | "admin" | "super_admin",
       });
 
       const refreshToken = generateRefreshToken({
         user_id: user.id,
         email: user.email,
-        role: user.role as 'user' | 'admin' | 'super_admin',
+        role: user.role as "user" | "admin" | "super_admin",
       });
 
       // Don't send password hash in response
@@ -77,7 +77,7 @@ export class AuthService {
         refreshToken,
       };
     } catch (error) {
-      logger.error('Registration error in service:', error);
+      logger.error("Registration error in service:", error);
       throw error;
     }
   }
@@ -95,27 +95,30 @@ export class AuthService {
       });
 
       if (!user) {
-        throw new Error('Invalid email or password');
+        throw new Error("Invalid email or password");
       }
 
       // Compare the password
-      const isPasswordValid = await comparePassword(password, user.password_hash);
+      const isPasswordValid = await comparePassword(
+        password,
+        user.password_hash
+      );
 
       if (!isPasswordValid) {
-        throw new Error('Invalid email or password');
+        throw new Error("Invalid email or password");
       }
 
       // Generate tokens
       const accessToken = generateAccessToken({
         user_id: user.id,
         email: user.email,
-        role: user.role as 'user' | 'admin' | 'super_admin',
+        role: user.role as "user" | "admin" | "super_admin",
       });
 
       const refreshToken = generateRefreshToken({
         user_id: user.id,
         email: user.email,
-        role: user.role as 'user' | 'admin' | 'super_admin',
+        role: user.role as "user" | "admin" | "super_admin",
       });
 
       // Don't send password hash in response
@@ -127,7 +130,7 @@ export class AuthService {
         refreshToken,
       };
     } catch (error) {
-      logger.error('Login error in service:', error);
+      logger.error("Login error in service:", error);
       throw error;
     }
   }
@@ -141,7 +144,21 @@ export class AuthService {
         where: { id: userId },
       });
     } catch (error) {
-      logger.error('Error fetching user by ID in service:', error);
+      logger.error("Error fetching user by ID in service:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get My Profile
+   */
+  static async getMe(userId: string) {
+    try {
+      return await prisma.user.findUnique({
+        where: { id: userId },
+      });
+    } catch (error) {
+      logger.error("Error fetching user by ID in service:", error);
       throw error;
     }
   }
