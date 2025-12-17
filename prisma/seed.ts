@@ -56,7 +56,7 @@ async function main() {
 
   // Create sample quizzes
   const generalQuiz = await prisma.quiz.upsert({
-    where: { title: 'General Knowledge Quiz' },
+    where: { title_unique: 'General Knowledge Quiz' },
     update: {},
     create: {
       title: 'General Knowledge Quiz',
@@ -70,7 +70,7 @@ async function main() {
   });
 
   const scienceQuiz = await prisma.quiz.upsert({
-    where: { title: 'Basic Science Quiz' },
+    where: { title_unique: 'Basic Science Quiz' },
     update: {},
     create: {
       title: 'Basic Science Quiz',

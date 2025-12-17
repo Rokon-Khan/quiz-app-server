@@ -12,7 +12,18 @@
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:migrate:reset": "npx prisma migrate reset",
-    "seed": "ts-node utils/seed.ts"
+    "seed": "ts-node utils/seed.ts",
+    "seed:all": "ts-node prisma/seeds/index.ts",
+    "seed:users": "ts-node -e \"import('./prisma/seeds/userSeed').then(m => m.seedUsers())\"",
+    "seed:categories": "ts-node -e \"import('./prisma/seeds/categorySeed').then(m => m.seedCategories())\"",
+    "seed:quizzes": "ts-node -e \"import('./prisma/seeds/quizSeed').then(m => m.seedQuizzes())\"",
+    "seed:questions": "ts-node -e \"import('./prisma/seeds/questionSeed').then(m => m.seedQuestions())\"",
+    "seed:answers": "ts-node -e \"import('./prisma/seeds/answerOptionSeed').then(m => m.seedAnswerOptions())\"",
+    "seed:funfacts": "ts-node -e \"import('./prisma/seeds/funFactSeed').then(m => m.seedFunFacts())\"",
+    "seed:attempts": "ts-node -e \"import('./prisma/seeds/userQuizAttemptSeed').then(m => m.seedUserQuizAttempts())\"",
+    "seed:useranswers": "ts-node -e \"import('./prisma/seeds/userAnswerSeed').then(m => m.seedUserAnswers())\"",
+    "seed:progress": "ts-node -e \"import('./prisma/seeds/userProgressSeed').then(m => m.seedUserProgress())\"",
+    "seed:certificates": "ts-node -e \"import('./prisma/seeds/certificateSeed').then(m => m.seedCertificates())\""
   },
   "keywords": [
     "quiz",
