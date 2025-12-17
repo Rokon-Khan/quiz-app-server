@@ -1,21 +1,42 @@
 // src/controllers/admin.controller.ts
 import { Request, Response } from "express";
 import { prisma } from "../config/database";
+import { paginationHelper } from "../helpers/paginationHelper";
+import { IPaginationOptions } from "../types/pagination";
 import { fileUploader } from "../utils/fileUploader";
 import { logger } from "../utils/logger";
 
 // Category Management
 export const getAllCategories = async (req: Request, res: Response) => {
   try {
+    const page = Number(req.query["page"]) || 1;
+    const limit = Number(req.query["limit"]) || 10;
+    const sortBy = (req.query["sortBy"] as string) || "created_at";
+    const sortOrder = (req.query["sortOrder"] as "asc" | "desc") || "desc";
+
+    const options: IPaginationOptions = {
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+    };
+
+    const { skip } = paginationHelper.calculatePagination(options);
+
     const categories = await prisma.category.findMany({
+      skip,
+      take: limit,
       orderBy: {
-        display_order: "asc",
+        [sortBy]: sortOrder,
       },
     });
+
+    const total = await prisma.category.count();
 
     res.status(200).json({
       success: true,
       message: "Categories retrieved successfully",
+      meta: { page, limit, total },
       data: categories,
     });
   } catch (error) {
@@ -150,7 +171,23 @@ export const deleteCategory = async (req: Request, res: Response) => {
 // Quiz Management
 export const getAllQuizzesAdmin = async (req: Request, res: Response) => {
   try {
+    const page = Number(req.query["page"]) || 1;
+    const limit = Number(req.query["limit"]) || 10;
+    const sortBy = (req.query["sortBy"] as string) || "created_at";
+    const sortOrder = (req.query["sortOrder"] as "asc" | "desc") || "desc";
+
+    const options: IPaginationOptions = {
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+    };
+
+    const { skip } = paginationHelper.calculatePagination(options);
+
     const quizzes = await prisma.quiz.findMany({
+      skip,
+      take: limit,
       include: {
         category: {
           select: {
@@ -160,13 +197,16 @@ export const getAllQuizzesAdmin = async (req: Request, res: Response) => {
         },
       },
       orderBy: {
-        created_at: "desc",
+        [sortBy]: sortOrder,
       },
     });
+
+    const total = await prisma.quiz.count();
 
     res.status(200).json({
       success: true,
       message: "Quizzes retrieved successfully",
+      meta: { page, limit, total },
       data: quizzes,
     });
   } catch (error) {
@@ -431,9 +471,70 @@ export const getAnalytics = async (req: Request, res: Response) => {
 };
 
 // User Management
+// export const getAllUsers = async (req: Request, res: Response) => {
+//   try {
+//     const options: IPaginationOptions = {
+//       page: Number(req.query.page),
+//       limit: Number(req.query.limit),
+//       sortBy: req.query.sortBy as string,
+//       sortOrder: req.query.sortOrder as 'asc' | 'desc'
+//     };
+
+//     const { page, limit, skip, sortBy, sortOrder } = paginationHelper.calculatePagination(options);
+
+//     const users = await prisma.user.findMany({
+//       skip,
+//       take: limit,
+//       select: {
+//         id: true,
+//         email: true,
+//         full_name: true,
+//         role: true,
+//         is_active: true,
+//         created_at: true,
+//         updated_at: true,
+//       },
+//       orderBy: {
+//         [sortBy]: sortOrder,
+//       },
+//     });
+
+//     const total = await prisma.user.count();
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Users retrieved successfully",
+//       meta: { page, limit, total },
+//       data: users,
+//     });
+//   } catch (error) {
+//     logger.error("Error fetching users:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//     });
+//   }
+// };
+
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
+    const page = Number(req.query["page"]) || 1;
+    const limit = Number(req.query["limit"]) || 10;
+    const sortBy = (req.query["sortBy"] as string) || "created_at";
+    const sortOrder = (req.query["sortOrder"] as "asc" | "desc") || "desc";
+
+    const options: IPaginationOptions = {
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+    };
+
+    const { skip } = paginationHelper.calculatePagination(options);
+
     const users = await prisma.user.findMany({
+      skip,
+      take: limit,
       select: {
         id: true,
         email: true,
@@ -444,13 +545,16 @@ export const getAllUsers = async (req: Request, res: Response) => {
         updated_at: true,
       },
       orderBy: {
-        created_at: "desc",
+        [sortBy]: sortOrder,
       },
     });
+
+    const total = await prisma.user.count();
 
     res.status(200).json({
       success: true,
       message: "Users retrieved successfully",
+      meta: { page, limit, total },
       data: users,
     });
   } catch (error) {
@@ -508,13 +612,11 @@ export const getAllFunFacts = async (req: Request, res: Response) => {
       include: { question: { select: { id: true, question_text: true } } },
       orderBy: { created_at: "desc" },
     });
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Fun facts retrieved successfully",
-        data: funFacts,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Fun facts retrieved successfully",
+      data: funFacts,
+    });
   } catch (error) {
     logger.error("Error fetching fun facts:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -533,13 +635,11 @@ export const getFunFactById = async (req: Request, res: Response) => {
         .status(404)
         .json({ success: false, message: "Fun fact not found" });
     }
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Fun fact retrieved successfully",
-        data: funFact,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Fun fact retrieved successfully",
+      data: funFact,
+    });
   } catch (error) {
     logger.error("Error fetching fun fact:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -561,13 +661,11 @@ export const createFunFact = async (req: Request, res: Response) => {
       data: { question_id, title, content, image_url },
     });
 
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Fun fact created successfully",
-        data: funFact,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Fun fact created successfully",
+      data: funFact,
+    });
   } catch (error) {
     logger.error("Error creating fun fact:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -605,13 +703,11 @@ export const updateFunFact = async (req: Request, res: Response) => {
       },
     });
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Fun fact updated successfully",
-        data: funFact,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Fun fact updated successfully",
+      data: funFact,
+    });
   } catch (error) {
     logger.error("Error updating fun fact:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -641,13 +737,11 @@ export const getAllCertificates = async (req: Request, res: Response) => {
       },
       orderBy: { issued_at: "desc" },
     });
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Certificates retrieved successfully",
-        data: certificates,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Certificates retrieved successfully",
+      data: certificates,
+    });
   } catch (error) {
     logger.error("Error fetching certificates:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -669,13 +763,11 @@ export const getCertificateById = async (req: Request, res: Response) => {
         .status(404)
         .json({ success: false, message: "Certificate not found" });
     }
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Certificate retrieved successfully",
-        data: certificate,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Certificate retrieved successfully",
+      data: certificate,
+    });
   } catch (error) {
     logger.error("Error fetching certificate:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -702,13 +794,11 @@ export const createCertificate = async (req: Request, res: Response) => {
       },
     });
 
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Certificate created successfully",
-        data: certificate,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Certificate created successfully",
+      data: certificate,
+    });
   } catch (error) {
     logger.error("Error creating certificate:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -748,13 +838,11 @@ export const updateCertificate = async (req: Request, res: Response) => {
       },
     });
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Certificate updated successfully",
-        data: certificate,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Certificate updated successfully",
+      data: certificate,
+    });
   } catch (error) {
     logger.error("Error updating certificate:", error);
     res.status(500).json({ success: false, message: "Internal server error" });

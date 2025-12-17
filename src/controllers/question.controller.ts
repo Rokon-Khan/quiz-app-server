@@ -1,12 +1,28 @@
 // src/controllers/question.controller.ts
 import { Request, Response } from "express";
 import { prisma } from "../config/database";
+import { paginationHelper } from "../helpers/paginationHelper";
+import { IPaginationOptions } from "../types/pagination";
 import { fileUploader } from "../utils/fileUploader";
 import { logger } from "../utils/logger";
 
 export const getAllQuestions = async (req: Request, res: Response) => {
   try {
     const { quizId, type } = req.query;
+
+    const page = Number(req.query["page"]) || 1;
+    const limit = Number(req.query["limit"]) || 10;
+    const sortBy = (req.query["sortBy"] as string) || "created_at";
+    const sortOrder = (req.query["sortOrder"] as "asc" | "desc") || "desc";
+
+    const options: IPaginationOptions = {
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+    };
+
+    const { skip } = paginationHelper.calculatePagination(options);
 
     const whereClause: any = {};
 
@@ -19,6 +35,8 @@ export const getAllQuestions = async (req: Request, res: Response) => {
     }
 
     const questions = await prisma.question.findMany({
+      skip,
+      take: limit,
       where: whereClause,
       include: {
         options: {
@@ -34,13 +52,16 @@ export const getAllQuestions = async (req: Request, res: Response) => {
         },
       },
       orderBy: {
-        display_order: "asc",
+        [sortBy]: sortOrder,
       },
     });
+
+    const total = await prisma.question.count({ where: whereClause });
 
     res.status(200).json({
       success: true,
       message: "Questions retrieved successfully",
+      meta: { page, limit, total },
       data: questions,
     });
   } catch (error) {

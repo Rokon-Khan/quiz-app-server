@@ -1,15 +1,31 @@
 // src/controllers/quiz.controller.ts
-import { Request, Response } from 'express';
-import { prisma } from '../config/database';
-import { logger } from '../utils/logger';
-import { calculateScorePercentage, isQuizPassed } from '../utils/helpers';
+import { Request, Response } from "express";
+import { prisma } from "../config/database";
+import { paginationHelper } from "../helpers/paginationHelper";
+import { IPaginationOptions } from "../types/pagination";
+import { calculateScorePercentage, isQuizPassed } from "../utils/helpers";
+import { logger } from "../utils/logger";
 
 export const getAllQuizzes = async (req: Request, res: Response) => {
   try {
-    const { category, difficulty, published = 'true' } = req.query;
+    const { category, difficulty, published = "true" } = req.query;
+
+    const page = Number(req.query["page"]) || 1;
+    const limit = Number(req.query["limit"]) || 10;
+    const sortBy = (req.query["sortBy"] as string) || "created_at";
+    const sortOrder = (req.query["sortOrder"] as "asc" | "desc") || "desc";
+
+    const options: IPaginationOptions = {
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+    };
+
+    const { skip } = paginationHelper.calculatePagination(options);
 
     const whereClause: any = {
-      is_published: published === 'true',
+      is_published: published === "true",
     };
 
     if (category) {
@@ -21,6 +37,8 @@ export const getAllQuizzes = async (req: Request, res: Response) => {
     }
 
     const quizzes = await prisma.quiz.findMany({
+      skip,
+      take: limit,
       where: whereClause,
       include: {
         category: {
@@ -31,20 +49,23 @@ export const getAllQuizzes = async (req: Request, res: Response) => {
         },
       },
       orderBy: {
-        created_at: 'desc',
+        [sortBy]: sortOrder,
       },
     });
 
+    const total = await prisma.quiz.count({ where: whereClause });
+
     return res.status(200).json({
       success: true,
-      message: 'Quizzes retrieved successfully',
+      message: "Quizzes retrieved successfully",
+      meta: { page, limit, total },
       data: quizzes,
     });
   } catch (error) {
-    logger.error('Error fetching quizzes:', error);
+    logger.error("Error fetching quizzes:", error);
     return res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: "Internal server error",
     });
   }
 };
@@ -68,31 +89,30 @@ export const getQuizById = async (req: Request, res: Response) => {
     if (!quiz) {
       return res.status(404).json({
         success: false,
-        message: 'Quiz not found',
+        message: "Quiz not found",
       });
     }
 
     if (!quiz.is_published) {
       return res.status(404).json({
         success: false,
-        message: 'Quiz not found',
+        message: "Quiz not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Quiz retrieved successfully',
+      message: "Quiz retrieved successfully",
       data: quiz,
     });
   } catch (error) {
-    logger.error('Error fetching quiz:', error);
+    logger.error("Error fetching quiz:", error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: "Internal server error",
     });
   }
 };
-
 
 export const startQuiz = async (req: Request, res: Response) => {
   try {
@@ -102,7 +122,7 @@ export const startQuiz = async (req: Request, res: Response) => {
     if (!userId || !quizId) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required parameters',
+        message: "Missing required parameters",
       });
     }
 
@@ -114,7 +134,7 @@ export const startQuiz = async (req: Request, res: Response) => {
     if (!quiz || !quiz.is_published) {
       return res.status(404).json({
         success: false,
-        message: 'Quiz not found or not published',
+        message: "Quiz not found or not published",
       });
     }
 
@@ -124,12 +144,12 @@ export const startQuiz = async (req: Request, res: Response) => {
       include: {
         options: {
           orderBy: {
-            display_order: 'asc',
+            display_order: "asc",
           },
         },
       },
       orderBy: {
-        display_order: 'asc',
+        display_order: "asc",
       },
       take: quiz.questions_per_attempt,
     });
@@ -137,7 +157,7 @@ export const startQuiz = async (req: Request, res: Response) => {
     if (questions.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'No questions available for this quiz',
+        message: "No questions available for this quiz",
       });
     }
 
@@ -147,14 +167,14 @@ export const startQuiz = async (req: Request, res: Response) => {
         user_id: userId,
         quiz_id: quizId,
         total_questions: questions.length,
-        status: 'in_progress',
+        status: "in_progress",
       },
     });
 
     // Hide correct answers from the response
-    const questionsForUser = questions.map(q => ({
+    const questionsForUser = questions.map((q) => ({
       ...q,
-      options: q.options.map(opt => ({
+      options: q.options.map((opt) => ({
         id: opt.id,
         question_id: opt.question_id,
         option_text: opt.option_text,
@@ -167,7 +187,7 @@ export const startQuiz = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Quiz started successfully',
+      message: "Quiz started successfully",
       data: {
         attempt_id: attempt.id,
         quiz: {
@@ -181,10 +201,10 @@ export const startQuiz = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Error starting quiz:', error);
+    logger.error("Error starting quiz:", error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: "Internal server error",
     });
   }
 };
@@ -198,7 +218,7 @@ export const submitQuiz = async (req: Request, res: Response) => {
     if (!userId || !quizId) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required parameters',
+        message: "Missing required parameters",
       });
     }
 
@@ -210,7 +230,7 @@ export const submitQuiz = async (req: Request, res: Response) => {
     if (!quiz || !quiz.is_published) {
       return res.status(404).json({
         success: false,
-        message: 'Quiz not found or not published',
+        message: "Quiz not found or not published",
       });
     }
 
@@ -219,17 +239,17 @@ export const submitQuiz = async (req: Request, res: Response) => {
       where: {
         quiz_id: quizId,
         user_id: userId,
-        status: 'in_progress',
+        status: "in_progress",
       },
       orderBy: {
-        started_at: 'desc',
+        started_at: "desc",
       },
     });
 
     if (!attempt) {
       return res.status(400).json({
         success: false,
-        message: 'No active quiz attempt found',
+        message: "No active quiz attempt found",
       });
     }
 
@@ -266,22 +286,28 @@ export const submitQuiz = async (req: Request, res: Response) => {
       // For yes/no: treat as single selection
       let isCorrect = false;
 
-      if (question.question_type === 'multiple_choice' || question.question_type === 'yes_no') {
+      if (
+        question.question_type === "multiple_choice" ||
+        question.question_type === "yes_no"
+      ) {
         // For multiple choice, only one option should be correct
-        const correctOption = question.options.find(opt => opt.is_correct);
-        if (selected_options.length === 1 &&
-            correctOption &&
-            selected_options[0] === correctOption.id) {
+        const correctOption = question.options.find((opt) => opt.is_correct);
+        if (
+          selected_options.length === 1 &&
+          correctOption &&
+          selected_options[0] === correctOption.id
+        ) {
           isCorrect = true;
         }
-      } else if (question.question_type === 'checkbox') {
+      } else if (question.question_type === "checkbox") {
         // For checkbox, all selected options must match all correct options exactly
-        const correctOptions = question.options.filter(opt => opt.is_correct);
-        const correctOptionIds = correctOptions.map(opt => opt.id).sort();
+        const correctOptions = question.options.filter((opt) => opt.is_correct);
+        const correctOptionIds = correctOptions.map((opt) => opt.id).sort();
         const selectedOptionIds = [...selected_options].sort();
 
-        isCorrect = correctOptionIds.length === selectedOptionIds.length &&
-                   correctOptionIds.every((val, idx) => val === selectedOptionIds[idx]);
+        isCorrect =
+          correctOptionIds.length === selectedOptionIds.length &&
+          correctOptionIds.every((val, idx) => val === selectedOptionIds[idx]);
       }
 
       // Update the answer record with correctness and points
@@ -297,7 +323,7 @@ export const submitQuiz = async (req: Request, res: Response) => {
         correctAnswers++;
         earnedPoints += question.points;
       }
-      
+
       totalPoints += question.points;
 
       processedAnswers.push({
@@ -309,7 +335,10 @@ export const submitQuiz = async (req: Request, res: Response) => {
     }
 
     // Calculate score percentage
-    const scorePercentage = calculateScorePercentage(correctAnswers, answers.length);
+    const scorePercentage = calculateScorePercentage(
+      correctAnswers,
+      answers.length
+    );
 
     // Update the attempt record
     const updatedAttempt = await prisma.userQuizAttempt.update({
@@ -317,7 +346,7 @@ export const submitQuiz = async (req: Request, res: Response) => {
       data: {
         score: scorePercentage,
         correct_answers: correctAnswers,
-        status: 'completed',
+        status: "completed",
         completed_at: new Date(),
       },
     });
@@ -378,7 +407,7 @@ export const submitQuiz = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Quiz submitted successfully',
+      message: "Quiz submitted successfully",
       data: {
         attempt: updatedAttempt,
         score: scorePercentage,
@@ -389,10 +418,10 @@ export const submitQuiz = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Error submitting quiz:', error);
+    logger.error("Error submitting quiz:", error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: "Internal server error",
     });
   }
 };
