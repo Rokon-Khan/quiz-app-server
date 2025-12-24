@@ -8,6 +8,7 @@ import { env } from "./config/env";
 import { errorHandler } from "./middleware/error.middleware";
 
 // Import routes
+import { pinoHttp } from "pino-http";
 import { adminRoutes } from "./routes/admin.routes";
 import { authRoutes } from "./routes/auth.routes";
 import { questionRoutes } from "./routes/question.routes";
@@ -27,10 +28,14 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+app.use(pinoHttp({ logger: require("../utils/logger").default }));
+
 // Body parsing middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Pino HTTP logger
 
 // CORS
 app.use(

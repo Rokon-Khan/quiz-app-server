@@ -156,3 +156,55 @@
 {"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 12:21:59"}
 {"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 12:21:59"}
 {"level":"info","message":"SIGINT received, shutting down gracefully","service":"quiz-api","timestamp":"2025-12-17 14:23:54"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 14:58:18"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 14:58:18"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 14:58:18"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 19:18:16"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 19:18:16"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 19:18:16"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 19:24:31"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 19:24:31"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 19:24:31"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 20:15:14"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 20:15:14"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 20:15:14"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 20:32:05"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 20:32:05"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 20:32:05"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 20:32:46"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 20:32:46"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 20:32:46"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 20:36:38"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 20:36:38"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 20:36:38"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 20:38:56"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 20:38:56"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 20:38:56"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 20:39:46"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 20:39:46"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 20:39:46"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 20:42:28"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 20:42:28"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 20:42:28"}
+{"clientVersion":"6.19.0","errorCode":"P1001","level":"error","message":"Failed to start the server: Can't reach database server at `ep-winter-darkness-ahml26h8-pooler.c-3.us-east-1.aws.neon.tech:5432`\n\nPlease make sure your database server is running at `ep-winter-darkness-ahml26h8-pooler.c-3.us-east-1.aws.neon.tech:5432`.","name":"PrismaClientInitializationError","service":"quiz-api","stack":"PrismaClientInitializationError: Can't reach database server at `ep-winter-darkness-ahml26h8-pooler.c-3.us-east-1.aws.neon.tech:5432`\n\nPlease make sure your database server is running at `ep-winter-darkness-ahml26h8-pooler.c-3.us-east-1.aws.neon.tech:5432`.\n    at r (C:\\PH-Level-2-Projects\\quiz-server\\node_modules\\@prisma\\client\\src\\runtime\\core\\engines\\library\\LibraryEngine.ts:440:17)\n    at startServer (C:\\PH-Level-2-Projects\\quiz-server\\src\\server.ts:10:5)","timestamp":"2025-12-17 20:44:59"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 20:47:17"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 20:47:17"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 20:47:17"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 20:51:51"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 20:51:51"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 20:51:51"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"quiz-api","timestamp":"2025-12-17 21:03:04"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-17 21:14:09"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-17 21:14:09"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-17 21:14:09"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-23 11:02:31"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-23 11:02:31"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-23 11:02:31"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"quiz-api","timestamp":"2025-12-23 11:04:58"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-24 20:49:21"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-24 20:49:21"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-24 20:49:21"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-24 20:51:59"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-24 20:51:59"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-24 20:51:59"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"quiz-api","timestamp":"2025-12-24 20:52:14"}

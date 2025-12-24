@@ -24,16 +24,16 @@ router.post(
   "/",
   authenticate,
   authorizeAdmin,
-  validate(createQuestionSchema),
   fileUploader.upload.single("question_image"),
+  validate(createQuestionSchema),
   createQuestion
 );
 router.put(
   "/:id",
   authenticate,
   authorizeAdmin,
-  validate(updateQuestionSchema),
   fileUploader.upload.single("question_image"),
+  validate(updateQuestionSchema),
   updateQuestion
 );
 router.delete("/:id", authenticate, authorizeAdmin, deleteQuestion);
