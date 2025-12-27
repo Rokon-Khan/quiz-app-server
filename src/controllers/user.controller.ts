@@ -18,6 +18,9 @@ export const getUserProfile = async (
         email: true,
         full_name: true,
         avatar_url: true,
+        address: true,
+        phone_number: true,
+        bio: true,
         role: true,
         is_active: true,
         created_at: true,
@@ -52,7 +55,7 @@ export const updateUserProfile = async (
 ) => {
   try {
     const userId = req.user?.id;
-    const { full_name } = req.body;
+    const { full_name, address, phone_number, bio } = req.body;
     const file = req.file;
 
     const currentUser = await prisma.user.findUnique({
@@ -81,6 +84,9 @@ export const updateUserProfile = async (
       data: {
         ...(full_name && { full_name }),
         ...(avatar_url && { avatar_url }),
+        ...(address && { address }),
+        ...(phone_number && { phone_number }),
+        ...(bio && { bio }),
         updated_at: new Date(),
       },
       select: {
