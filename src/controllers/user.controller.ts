@@ -246,3 +246,98 @@ export const getUserCertificates = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const toggleUserActiveStatus = async (
+  req: Request & { user?: any },
+  res: Response
+) => {
+  try {
+    const targetUserId = req.params["id"];
+    const currentUserId = req.user?.["id"];
+
+    // Prevent self-deactivation
+    if (currentUserId === targetUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot change your own account status",
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: targetUserId },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    await prisma.user.update({
+      where: { id: targetUserId },
+      data: {
+        is_active: !user.is_active, // Toggle the status
+        updated_at: new Date(),
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `User account ${
+        !user.is_active ? "activated" : "deactivated"
+      } successfully`,
+      data: { is_active: !user.is_active },
+    });
+  } catch (error) {
+    logger.error("Toggle user status error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const deleteUserAccount = async (
+  req: Request & { user?: any },
+  res: Response
+) => {
+  try {
+    const targetUserId = req.params["id"]; // Changed from req.user.id
+    const currentUserId = req.user?.["id"];
+
+    // Prevent self-deletion
+    if (currentUserId === targetUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot delete your own account",
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: targetUserId },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    await prisma.user.delete({
+      where: { id: targetUserId },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "User account deleted successfully",
+    });
+  } catch (error) {
+    logger.error("Delete user account error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};

@@ -2,13 +2,15 @@
 import { Router } from "express";
 // import { fileUploader } from "../../utils/fileUploader";
 import {
+  deleteUserAccount,
   getUserAttempts,
   getUserCertificates,
   getUserProfile,
   getUserProgress,
+  toggleUserActiveStatus,
   updateUserProfile,
 } from "../controllers/user.controller";
-import { authenticate } from "../middleware/auth.middleware";
+import { authenticate, authorizeAdmin } from "../middleware/auth.middleware";
 import { fileUploader } from "../utils/fileUploader";
 
 const router = Router();
@@ -24,5 +26,9 @@ router.put(
 router.get("/me/progress", authenticate, getUserProgress);
 router.get("/me/attempts", authenticate, getUserAttempts);
 router.get("/me/certificates", authenticate, getUserCertificates);
+
+router.patch("/:id", authenticate, authorizeAdmin, toggleUserActiveStatus);
+
+router.delete("/:id", authenticate, authorizeAdmin, deleteUserAccount);
 
 export { router as userRoutes };
