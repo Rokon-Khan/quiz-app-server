@@ -417,6 +417,8 @@ export const getAnalytics = async (req: Request, res: Response) => {
     const totalUsers = await prisma.user.count();
     const totalQuizzes = await prisma.quiz.count();
     const totalQuestions = await prisma.question.count();
+    const totalCategories = await prisma.category.count();
+    const totalCertificates = await prisma.certificate.count();
     const completedAttempts = await prisma.userQuizAttempt.count({
       where: { status: "completed" },
     });
@@ -453,7 +455,9 @@ export const getAnalytics = async (req: Request, res: Response) => {
           totalUsers,
           totalQuizzes,
           totalQuestions,
+          totalCategories,
           completedAttempts,
+          totalCertificates,
         },
         recentActivity: {
           recentUsers,
