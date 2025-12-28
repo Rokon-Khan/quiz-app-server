@@ -1,43 +1,57 @@
 // src/controllers/question.controller.ts
+import { Prisma } from "@prisma/client";
 import { Request, Response } from "express";
 import { prisma } from "../config/database";
+import {
+  questionFilterableFields,
+  questionSearchableFields,
+} from "../constants/searchFields";
 import { paginationHelper } from "../helpers/paginationHelper";
 import { IPaginationOptions } from "../types/pagination";
 import { fileUploader } from "../utils/fileUploader";
 import { logger } from "../utils/logger";
+import { pick } from "../utils/pick";
 
 export const getAllQuestions = async (req: Request, res: Response) => {
   try {
-    const { quizId, type } = req.query;
+    const filters = pick(req.query, questionFilterableFields);
+    const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
 
-    const page = Number(req.query["page"]) || 1;
-    const limit = Number(req.query["limit"]) || 10;
-    const sortBy = (req.query["sortBy"] as string) || "created_at";
-    const sortOrder = (req.query["sortOrder"] as "asc" | "desc") || "desc";
+    const { page, limit, skip } = paginationHelper.calculatePagination(
+      options as IPaginationOptions
+    );
+    const { searchTerm, ...filterData } = filters;
 
-    const options: IPaginationOptions = {
-      page,
-      limit,
-      sortBy,
-      sortOrder,
-    };
+    const andConditions: Prisma.QuestionWhereInput[] = [];
 
-    const { skip } = paginationHelper.calculatePagination(options);
-
-    const whereClause: any = {};
-
-    if (quizId) {
-      whereClause.quiz_id = quizId as string;
+    if (searchTerm) {
+      andConditions.push({
+        OR: questionSearchableFields.map((field) => ({
+          [field]: {
+            contains: searchTerm as string,
+            mode: "insensitive",
+          },
+        })),
+      });
     }
 
-    if (type) {
-      whereClause.question_type = type as string;
+    if (Object.keys(filterData).length > 0) {
+      andConditions.push({
+        AND: Object.keys(filterData).map((key) => ({
+          [key]: {
+            equals: (filterData as any)[key],
+          },
+        })),
+      });
     }
+
+    const whereConditions: Prisma.QuestionWhereInput =
+      andConditions.length > 0 ? { AND: andConditions } : {};
 
     const questions = await prisma.question.findMany({
+      where: whereConditions,
       skip,
       take: limit,
-      where: whereClause,
       include: {
         options: {
           orderBy: {
@@ -51,12 +65,17 @@ export const getAllQuestions = async (req: Request, res: Response) => {
           },
         },
       },
-      orderBy: {
-        [sortBy]: sortOrder,
-      },
+      orderBy:
+        options["sortBy"] && options["sortOrder"]
+          ? {
+              [options["sortBy"] as string]: options["sortOrder"] as
+                | "asc"
+                | "desc",
+            }
+          : { created_at: "desc" },
     });
 
-    const total = await prisma.question.count({ where: whereClause });
+    const total = await prisma.question.count({ where: whereConditions });
 
     res.status(200).json({
       success: true,

@@ -1,37 +1,76 @@
 // src/controllers/admin.controller.ts
+import { Prisma } from "@prisma/client";
 import { Request, Response } from "express";
 import { prisma } from "../config/database";
+import {
+  categoryFilterableFields,
+  categorySearchableFields,
+  certificateFilterableFields,
+  funFactFilterableFields,
+  funFactSearchableFields,
+  quizFilterableFields,
+  quizSearchableFields,
+  userFilterableFields,
+  userSearchableFields,
+} from "../constants/searchFields";
 import { paginationHelper } from "../helpers/paginationHelper";
 import { IPaginationOptions } from "../types/pagination";
 import { fileUploader } from "../utils/fileUploader";
 import { logger } from "../utils/logger";
+import { pick } from "../utils/pick";
 
 // Category Management
 export const getAllCategories = async (req: Request, res: Response) => {
   try {
-    const page = Number(req.query["page"]) || 1;
-    const limit = Number(req.query["limit"]) || 10;
-    const sortBy = (req.query["sortBy"] as string) || "created_at";
-    const sortOrder = (req.query["sortOrder"] as "asc" | "desc") || "desc";
+    const filters = pick(req.query, categoryFilterableFields);
+    const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
 
-    const options: IPaginationOptions = {
-      page,
-      limit,
-      sortBy,
-      sortOrder,
-    };
+    const { page, limit, skip } = paginationHelper.calculatePagination(
+      options as IPaginationOptions
+    );
+    const { searchTerm, ...filterData } = filters;
 
-    const { skip } = paginationHelper.calculatePagination(options);
+    const andConditions: Prisma.CategoryWhereInput[] = [];
+
+    if (searchTerm) {
+      andConditions.push({
+        OR: categorySearchableFields.map((field) => ({
+          [field]: {
+            contains: searchTerm as string,
+            mode: "insensitive",
+          },
+        })),
+      });
+    }
+
+    if (Object.keys(filterData).length > 0) {
+      andConditions.push({
+        AND: Object.keys(filterData).map((key) => ({
+          [key]: {
+            equals: (filterData as any)[key],
+          },
+        })),
+      });
+    }
+
+    const whereConditions: Prisma.CategoryWhereInput =
+      andConditions.length > 0 ? { AND: andConditions } : {};
 
     const categories = await prisma.category.findMany({
+      where: whereConditions,
       skip,
       take: limit,
-      orderBy: {
-        [sortBy]: sortOrder,
-      },
+      orderBy:
+        options["sortBy"] && options["sortOrder"]
+          ? {
+              [options["sortBy"] as string]: options["sortOrder"] as
+                | "asc"
+                | "desc",
+            }
+          : { created_at: "desc" },
     });
 
-    const total = await prisma.category.count();
+    const total = await prisma.category.count({ where: whereConditions });
 
     res.status(200).json({
       success: true,
@@ -171,21 +210,42 @@ export const deleteCategory = async (req: Request, res: Response) => {
 // Quiz Management
 export const getAllQuizzesAdmin = async (req: Request, res: Response) => {
   try {
-    const page = Number(req.query["page"]) || 1;
-    const limit = Number(req.query["limit"]) || 10;
-    const sortBy = (req.query["sortBy"] as string) || "created_at";
-    const sortOrder = (req.query["sortOrder"] as "asc" | "desc") || "desc";
+    const filters = pick(req.query, quizFilterableFields);
+    const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
 
-    const options: IPaginationOptions = {
-      page,
-      limit,
-      sortBy,
-      sortOrder,
-    };
+    const { page, limit, skip } = paginationHelper.calculatePagination(
+      options as IPaginationOptions
+    );
+    const { searchTerm, ...filterData } = filters;
 
-    const { skip } = paginationHelper.calculatePagination(options);
+    const andConditions: Prisma.QuizWhereInput[] = [];
+
+    if (searchTerm) {
+      andConditions.push({
+        OR: quizSearchableFields.map((field) => ({
+          [field]: {
+            contains: searchTerm as string,
+            mode: "insensitive",
+          },
+        })),
+      });
+    }
+
+    if (Object.keys(filterData).length > 0) {
+      andConditions.push({
+        AND: Object.keys(filterData).map((key) => ({
+          [key]: {
+            equals: (filterData as any)[key],
+          },
+        })),
+      });
+    }
+
+    const whereConditions: Prisma.QuizWhereInput =
+      andConditions.length > 0 ? { AND: andConditions } : {};
 
     const quizzes = await prisma.quiz.findMany({
+      where: whereConditions,
       skip,
       take: limit,
       include: {
@@ -196,12 +256,13 @@ export const getAllQuizzesAdmin = async (req: Request, res: Response) => {
           },
         },
       },
-      orderBy: {
-        [sortBy]: sortOrder,
-      },
+      orderBy:
+        options["sortBy"] && options["sortOrder"]
+          ? { [options["sortBy"] as string]: options["sortOrder"] }
+          : { created_at: "desc" },
     });
 
-    const total = await prisma.quiz.count();
+    const total = await prisma.quiz.count({ where: whereConditions });
 
     res.status(200).json({
       success: true,
@@ -522,21 +583,42 @@ export const getAnalytics = async (req: Request, res: Response) => {
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const page = Number(req.query["page"]) || 1;
-    const limit = Number(req.query["limit"]) || 10;
-    const sortBy = (req.query["sortBy"] as string) || "created_at";
-    const sortOrder = (req.query["sortOrder"] as "asc" | "desc") || "desc";
+    const filters = pick(req.query, userFilterableFields);
+    const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
 
-    const options: IPaginationOptions = {
-      page,
-      limit,
-      sortBy,
-      sortOrder,
-    };
+    const { page, limit, skip } = paginationHelper.calculatePagination(
+      options as IPaginationOptions
+    );
+    const { searchTerm, ...filterData } = filters;
 
-    const { skip } = paginationHelper.calculatePagination(options);
+    const andConditions: Prisma.UserWhereInput[] = [];
+
+    if (searchTerm) {
+      andConditions.push({
+        OR: userSearchableFields.map((field) => ({
+          [field]: {
+            contains: searchTerm as string,
+            mode: "insensitive",
+          },
+        })),
+      });
+    }
+
+    if (Object.keys(filterData).length > 0) {
+      andConditions.push({
+        AND: Object.keys(filterData).map((key) => ({
+          [key]: {
+            equals: (filterData as any)[key],
+          },
+        })),
+      });
+    }
+
+    const whereConditions: Prisma.UserWhereInput =
+      andConditions.length > 0 ? { AND: andConditions } : {};
 
     const users = await prisma.user.findMany({
+      where: whereConditions,
       skip,
       take: limit,
       select: {
@@ -544,19 +626,21 @@ export const getAllUsers = async (req: Request, res: Response) => {
         email: true,
         full_name: true,
         role: true,
-        address: true,
-        phone_number: true,
-        bio: true,
         is_active: true,
         created_at: true,
         updated_at: true,
       },
-      orderBy: {
-        [sortBy]: sortOrder,
-      },
+      orderBy:
+        options["sortBy"] && options["sortOrder"]
+          ? {
+              [options["sortBy"] as string]: options["sortOrder"] as
+                | "asc"
+                | "desc",
+            }
+          : { created_at: "desc" },
     });
 
-    const total = await prisma.user.count();
+    const total = await prisma.user.count({ where: whereConditions });
 
     res.status(200).json({
       success: true,
@@ -618,13 +702,61 @@ export const getUserById = async (req: Request, res: Response) => {
 // Fun Facts Management
 export const getAllFunFacts = async (req: Request, res: Response) => {
   try {
+    const filters = pick(req.query, funFactFilterableFields);
+    const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+
+    const { page, limit, skip } = paginationHelper.calculatePagination(
+      options as IPaginationOptions
+    );
+    const { searchTerm, ...filterData } = filters;
+
+    const andConditions: Prisma.FunFactWhereInput[] = [];
+
+    if (searchTerm) {
+      andConditions.push({
+        OR: funFactSearchableFields.map((field) => ({
+          [field]: {
+            contains: searchTerm as string,
+            mode: "insensitive",
+          },
+        })),
+      });
+    }
+
+    if (Object.keys(filterData).length > 0) {
+      andConditions.push({
+        AND: Object.keys(filterData).map((key) => ({
+          [key]: {
+            equals: (filterData as any)[key],
+          },
+        })),
+      });
+    }
+
+    const whereConditions: Prisma.FunFactWhereInput =
+      andConditions.length > 0 ? { AND: andConditions } : {};
+
     const funFacts = await prisma.funFact.findMany({
+      where: whereConditions,
+      skip,
+      take: limit,
       include: { question: { select: { id: true, question_text: true } } },
-      orderBy: { created_at: "desc" },
+      orderBy:
+        options["sortBy"] && options["sortOrder"]
+          ? {
+              [options["sortBy"] as string]: options["sortOrder"] as
+                | "asc"
+                | "desc",
+            }
+          : { created_at: "desc" },
     });
+
+    const total = await prisma.funFact.count({ where: whereConditions });
+
     res.status(200).json({
       success: true,
       message: "Fun facts retrieved successfully",
+      meta: { page, limit, total },
       data: funFacts,
     });
   } catch (error) {
@@ -740,16 +872,53 @@ export const deleteFunFact = async (req: Request, res: Response) => {
 // Certificate Management
 export const getAllCertificates = async (req: Request, res: Response) => {
   try {
+    const filters = pick(req.query, certificateFilterableFields);
+    const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+
+    const { page, limit, skip } = paginationHelper.calculatePagination(
+      options as IPaginationOptions
+    );
+    const { searchTerm, ...filterData } = filters;
+
+    const andConditions: Prisma.CertificateWhereInput[] = [];
+
+    if (Object.keys(filterData).length > 0) {
+      andConditions.push({
+        AND: Object.keys(filterData).map((key) => ({
+          [key]: {
+            equals: (filterData as any)[key],
+          },
+        })),
+      });
+    }
+
+    const whereConditions: Prisma.CertificateWhereInput =
+      andConditions.length > 0 ? { AND: andConditions } : {};
+
     const certificates = await prisma.certificate.findMany({
+      where: whereConditions,
+      skip,
+      take: limit,
       include: {
         user: { select: { id: true, full_name: true, email: true } },
         quiz: { select: { id: true, title: true } },
       },
-      orderBy: { issued_at: "desc" },
+      orderBy:
+        options["sortBy"] && options["sortOrder"]
+          ? {
+              [options["sortBy"] as string]: options["sortOrder"] as
+                | "asc"
+                | "desc",
+            }
+          : { issued_at: "desc" },
     });
+
+    const total = await prisma.certificate.count({ where: whereConditions });
+
     res.status(200).json({
       success: true,
       message: "Certificates retrieved successfully",
+      meta: { page, limit, total },
       data: certificates,
     });
   } catch (error) {
