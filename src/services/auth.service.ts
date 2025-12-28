@@ -26,6 +26,12 @@ interface UserResponse {
   updated_at: Date;
 }
 
+interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 export class AuthService {
   /**
    * Register a new user
@@ -131,6 +137,113 @@ export class AuthService {
       };
     } catch (error) {
       logger.error("Login error in service:", error);
+      throw error;
+    }
+  }
+
+  static async resetPassword(userId: string, newPassword: string) {
+    try {
+      const hashedPassword = await hashPassword(newPassword);
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          password_hash: hashedPassword,
+        },
+      });
+
+      return true;
+    } catch (error) {
+      logger.error("Reset password error in service:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Change password for logged-in user
+   */
+  static async changePassword(
+    userId: string,
+    passwordData: ChangePasswordData
+  ) {
+    try {
+      const { currentPassword, newPassword, confirmPassword } = passwordData;
+
+      // Validate new password confirmation
+      if (newPassword !== confirmPassword) {
+        throw new Error("New password and confirmation do not match");
+      }
+
+      // Validate new password strength (optional)
+      if (newPassword.length < 6) {
+        throw new Error("Password must be at least 6 characters long");
+      }
+
+      // Find the user
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      // Verify current password
+      const isCurrentPasswordValid = await comparePassword(
+        currentPassword,
+        user.password_hash
+      );
+
+      if (!isCurrentPasswordValid) {
+        throw new Error("Current password is incorrect");
+      }
+
+      // Check if new password is same as current password
+      const isSamePassword = await comparePassword(
+        newPassword,
+        user.password_hash
+      );
+
+      if (isSamePassword) {
+        throw new Error("New password must be different from current password");
+      }
+
+      // Hash the new password
+      const hashedNewPassword = await hashPassword(newPassword);
+
+      // Update the password
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          password_hash: hashedNewPassword,
+          updated_at: new Date(),
+        },
+      });
+
+      // Generate new tokens (optional - for security, you might want to invalidate old sessions)
+      const accessToken = generateAccessToken({
+        user_id: updatedUser.id,
+        email: updatedUser.email,
+        role: updatedUser.role as "user" | "admin" | "super_admin",
+      });
+
+      const refreshToken = generateRefreshToken({
+        user_id: updatedUser.id,
+        email: updatedUser.email,
+        role: updatedUser.role as "user" | "admin" | "super_admin",
+      });
+
+      // Don't send password hash in response
+      const { password_hash, ...userWithoutPassword } = updatedUser;
+
+      return {
+        user: userWithoutPassword as UserResponse,
+        accessToken,
+        refreshToken,
+        message: "Password changed successfully",
+      };
+    } catch (error) {
+      logger.error("Change password error in service:", error);
       throw error;
     }
   }
