@@ -871,3 +871,172 @@ export const deleteCertificate = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+export const getMonthlyGrowth = async (req: Request, res: Response) => {
+  try {
+    const monthlyData = [];
+    const currentDate = new Date();
+
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() - i,
+        1
+      );
+      const nextDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() - i + 1,
+        1
+      );
+
+      const users = await prisma.user.count({
+        where: {
+          created_at: {
+            gte: date,
+            lt: nextDate,
+          },
+        },
+      });
+
+      const attempts = await prisma.userQuizAttempt.count({
+        where: {
+          started_at: {
+            gte: date,
+            lt: nextDate,
+          },
+          status: "completed",
+        },
+      });
+
+      const avgScore = await prisma.userQuizAttempt.aggregate({
+        where: {
+          started_at: {
+            gte: date,
+            lt: nextDate,
+          },
+          status: "completed",
+        },
+        _avg: {
+          score: true,
+        },
+      });
+
+      monthlyData.push({
+        name: date.toLocaleDateString("en-US", { month: "short" }),
+        users,
+        revenue: attempts * 10,
+        engagement: Math.round(avgScore._avg.score || 0),
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: monthlyData,
+    });
+  } catch (error) {
+    logger.error("Error fetching monthly growth:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getDailyActivity = async (req: Request, res: Response) => {
+  try {
+    const dailyData = [];
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      date.setHours(0, 0, 0, 0);
+
+      const nextDate = new Date(date);
+      nextDate.setDate(nextDate.getDate() + 1);
+
+      const active = await prisma.userQuizAttempt.count({
+        where: {
+          started_at: {
+            gte: date,
+            lt: nextDate,
+          },
+        },
+      });
+
+      const newUsers = await prisma.user.count({
+        where: {
+          created_at: {
+            gte: date,
+            lt: nextDate,
+          },
+        },
+      });
+
+      dailyData.push({
+        name: days[date.getDay()],
+        active,
+        new: newUsers,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: dailyData,
+    });
+  } catch (error) {
+    logger.error("Error fetching daily activity:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getEngagementTrend = async (req: Request, res: Response) => {
+  try {
+    const engagementData = [];
+    const currentDate = new Date();
+
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() - i,
+        1
+      );
+      const nextDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() - i + 1,
+        1
+      );
+
+      const avgScore = await prisma.userQuizAttempt.aggregate({
+        where: {
+          started_at: {
+            gte: date,
+            lt: nextDate,
+          },
+          status: "completed",
+        },
+        _avg: {
+          score: true,
+        },
+      });
+
+      engagementData.push({
+        name: date.toLocaleDateString("en-US", { month: "short" }),
+        engagement: Math.round(avgScore._avg.score || 0),
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: engagementData,
+    });
+  } catch (error) {
+    logger.error("Error fetching engagement trend:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};

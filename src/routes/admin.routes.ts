@@ -24,6 +24,9 @@ import {
   createCertificate,
   updateCertificate,
   deleteCertificate,
+  getMonthlyGrowth,
+  getDailyActivity,
+  getEngagementTrend,
 } from "../controllers/admin.controller";
 import { authenticate, authorizeAdmin } from "../middleware/auth.middleware";
 import { validate } from "../middleware/validation.middleware";
@@ -117,6 +120,9 @@ router.delete("/certificates/:id", authenticate, authorizeAdmin, deleteCertifica
 
 // Analytics routes
 router.get("/analytics", authenticate, authorizeAdmin, getAnalytics);
+router.get("/analytics/monthly-growth", authenticate, authorizeAdmin, getMonthlyGrowth);
+router.get("/analytics/daily-activity", authenticate, authorizeAdmin, getDailyActivity);
+router.get("/analytics/engagement-trend", authenticate, authorizeAdmin, getEngagementTrend);
 
 // User management routes
 router.get("/users", authenticate, authorizeAdmin, getAllUsers);
