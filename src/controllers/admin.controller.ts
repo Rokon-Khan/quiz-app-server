@@ -870,6 +870,63 @@ export const deleteFunFact = async (req: Request, res: Response) => {
 };
 
 // Certificate Management
+// export const getAllCertificates = async (req: Request, res: Response) => {
+//   try {
+//     const filters = pick(req.query, certificateFilterableFields);
+//     const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+
+//     const { page, limit, skip } = paginationHelper.calculatePagination(
+//       options as IPaginationOptions
+//     );
+//     const { searchTerm, ...filterData } = filters;
+
+//     const andConditions: Prisma.CertificateWhereInput[] = [];
+
+//     if (Object.keys(filterData).length > 0) {
+//       andConditions.push({
+//         AND: Object.keys(filterData).map((key) => ({
+//           [key]: {
+//             equals: (filterData as any)[key],
+//           },
+//         })),
+//       });
+//     }
+
+//     const whereConditions: Prisma.CertificateWhereInput =
+//       andConditions.length > 0 ? { AND: andConditions } : {};
+
+//     const certificates = await prisma.certificate.findMany({
+//       where: whereConditions,
+//       skip,
+//       take: limit,
+//       include: {
+//         user: { select: { id: true, full_name: true, email: true } },
+//         quiz: { select: { id: true, title: true } },
+//       },
+//       orderBy:
+//         options["sortBy"] && options["sortOrder"]
+//           ? {
+//               [options["sortBy"] as string]: options["sortOrder"] as
+//                 | "asc"
+//                 | "desc",
+//             }
+//           : { issued_at: "desc" },
+//     });
+
+//     const total = await prisma.certificate.count({ where: whereConditions });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Certificates retrieved successfully",
+//       meta: { page, limit, total },
+//       data: certificates,
+//     });
+//   } catch (error) {
+//     logger.error("Error fetching certificates:", error);
+//     res.status(500).json({ success: false, message: "Internal server error" });
+//   }
+// };
+
 export const getAllCertificates = async (req: Request, res: Response) => {
   try {
     const filters = pick(req.query, certificateFilterableFields);
@@ -882,6 +939,38 @@ export const getAllCertificates = async (req: Request, res: Response) => {
 
     const andConditions: Prisma.CertificateWhereInput[] = [];
 
+    // Handle searchTerm - search across certificate, user, and quiz fields
+    if (searchTerm) {
+      andConditions.push({
+        OR: [
+          // Search in user fields
+          {
+            user: {
+              is: {
+                full_name: { contains: searchTerm as string, mode: "insensitive" },
+              },
+            },
+          },
+          {
+            user: {
+              is: {
+                email: { contains: searchTerm as string, mode: "insensitive" },
+              },
+            },
+          },
+          // Search in quiz fields
+          {
+            quiz: {
+              is: {
+                title: { contains: searchTerm as string, mode: "insensitive" },
+              },
+            },
+          },
+        ],
+      });
+    }
+
+    // Handle individual field filters
     if (Object.keys(filterData).length > 0) {
       andConditions.push({
         AND: Object.keys(filterData).map((key) => ({

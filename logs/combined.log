@@ -384,3 +384,12 @@
 {"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-28 17:58:47"}
 {"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-28 17:58:47"}
 {"level":"info","message":"SIGINT received, shutting down gracefully","service":"quiz-api","timestamp":"2025-12-28 17:59:21"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-28 17:59:26"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-28 17:59:26"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-28 17:59:26"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-28 18:16:51"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-28 18:16:51"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-28 18:16:51"}
+{"level":"info","message":"Connected to the database successfully","service":"quiz-api","timestamp":"2025-12-28 18:25:22"}
+{"level":"info","message":"Quiz API server is running on port 5000 in development mode","service":"quiz-api","timestamp":"2025-12-28 18:25:22"}
+{"level":"info","message":"Health check available at http://localhost:5000/health","service":"quiz-api","timestamp":"2025-12-28 18:25:22"}
