@@ -42,7 +42,10 @@ app.use(
   cors({
     origin:
       process.env["NODE_ENV"] === "production"
-        ? ["https://yourdomain.com", "https://www.yourdomain.com"]
+        ? process.env["ALLOWED_ORIGINS"]?.split(",") || [
+            "https://wizdommaster.com",
+            "https://admin.wizdommaster.com",
+          ]
         : [
             "http://localhost:3000",
             "http://localhost:3001",
@@ -67,10 +70,10 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
 
 // Health check endpoint
-app.get("/health", (req: Request, res: Response) => {
+app.get("/api/v1/health", (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
-    message: "Quiz API is running smoothly!",
+    message: "Quiz API Server has Connected to Digital Ocean!",
     timestamp: new Date().toISOString(),
     environment: env.NODE_ENV,
   });

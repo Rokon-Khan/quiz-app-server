@@ -38,6 +38,7 @@ export const createQuizSchema = z.object({
     time_limit_minutes: z.number().int().min(0).optional(),
     passing_score: z.number().int().min(0).max(100).optional(),
     is_published: z.boolean().optional(),
+    is_featured: z.boolean().optional(),
   }),
 });
 

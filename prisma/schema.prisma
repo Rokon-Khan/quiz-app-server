@@ -55,6 +55,7 @@ model Quiz {
   time_limit_minutes    Int            @default(0)
   passing_score         Int            @default(70)
   is_published          Boolean        @default(false)
+  is_featured           Boolean        @default(false)
   created_at            DateTime       @default(now())
   updated_at            DateTime       @default(now())
   
