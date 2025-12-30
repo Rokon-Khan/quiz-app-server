@@ -8,7 +8,13 @@ import {
   updateQuestion,
 } from "../controllers/question.controller";
 import { authenticate, authorizeAdmin } from "../middleware/auth.middleware";
+import { parseFormDataBody } from "../middleware/parseFormData.middleware";
+import { validate } from "../middleware/validation.middleware";
 import { fileUploader } from "../utils/fileUploader";
+import {
+  createQuestionSchema,
+  updateQuestionSchema,
+} from "../validators/question.validator";
 
 const router = Router();
 
@@ -20,7 +26,8 @@ router.post(
   authenticate,
   authorizeAdmin,
   fileUploader.upload.single("question_image"),
-  // validate(createQuestionSchema),
+  parseFormDataBody,
+  validate(createQuestionSchema),
   createQuestion
 );
 router.put(
@@ -28,7 +35,8 @@ router.put(
   authenticate,
   authorizeAdmin,
   fileUploader.upload.single("question_image"),
-  // validate(updateQuestionSchema),
+  parseFormDataBody,
+  validate(updateQuestionSchema),
   updateQuestion
 );
 router.delete("/:id", authenticate, authorizeAdmin, deleteQuestion);
